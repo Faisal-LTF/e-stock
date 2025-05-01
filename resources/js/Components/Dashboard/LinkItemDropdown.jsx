@@ -12,7 +12,7 @@ export default function LinkItemDropdown({ icon, title, data, access, sidebarOpe
     // destruct auth from usepage props
     const { auth } = usePage().props;
 
-    console.log(auth)
+    // console.log(auth)
 
     return (
         <>
