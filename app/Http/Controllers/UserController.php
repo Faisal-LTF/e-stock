@@ -103,6 +103,7 @@ class UserController extends Controller
         // update user data name
         $user->update([
             'name' => $request->name,
+            'email' => $request->email,
         ]);
 
         // assign role to user

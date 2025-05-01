@@ -82,7 +82,6 @@ export default function Edit() {
                             value={data.email}
                             onChange={e => setData('email', e.target.value)}
                             errors={errors.email}
-                            disabled
                         />
                     </div>
                 </div>
