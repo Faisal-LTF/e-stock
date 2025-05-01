@@ -28,9 +28,8 @@ class TransactionController extends Controller
 
         $carts_total = 0;
         foreach ($carts as $cart) {
-            $carts_total += $cart->price * $cart->qty; // Assuming your quantity column is named 'quantity'
+            $carts_total += $cart->price * $cart->qty;
         }
-
 
         return Inertia::render('Dashboard/Transactions/Index', [
             'carts' => $carts,
@@ -91,26 +90,25 @@ class TransactionController extends Controller
             ->first();
 
         if ($cart) {
-            // Tingkatkan qty
-            $cart->increment('qty', $request->qty);
+            // Tambah kuantitas
+            $cart->qty += $request->qty;
 
-            // Jumlahkan harga * kuantitas
-            $cart->price = $cart->product->sell_price * $cart->qty;
+            // ✅ Tetapkan ulang harga satuan jika perlu (opsional, atau bisa diabaikan kalau tidak berubah)
+            $cart->price = $cart->product->sell_price;
 
             $cart->save();
         } else {
-            // Insert ke keranjang
+            // Tambahkan item baru ke keranjang
             Cart::create([
                 'cashier_id' => auth()->user()->id,
                 'product_id' => $request->product_id,
                 'qty' => $request->qty,
-                'price' => $request->sell_price * $request->qty,
+                'price' => $request->sell_price, // ✅ hanya harga satuan!
             ]);
         }
 
         return redirect()->route('transactions.index')->with('success', 'Product Added Successfully!.');
     }
-
 
     /**
      * destroyCart
@@ -126,10 +124,8 @@ class TransactionController extends Controller
             $cart->delete();
             return back();
         } else {
-            // Handle case where no cart is found (e.g., redirect with error message)
             return back()->withErrors(['message' => 'Cart not found']);
         }
-
     }
 
     /**
@@ -140,36 +136,94 @@ class TransactionController extends Controller
      */
     public function store(Request $request)
     {
-        /**
-         * algorithm generate no invoice
-         */
+        // Validasi input
+        $request->validate([
+            'customer_id' => 'nullable|exists:customers,id',
+            'discount' => 'required|numeric',
+            'discount_type' => 'required|string|in:rupiah,percentage',
+            'tax_percentage' => 'required|numeric',
+            'tax_amount' => 'required|numeric',
+            'grand_total' => 'required|numeric',
+            'cash' => 'required|numeric',
+            'change' => 'required|numeric',
+        ]);
+
+        // Log input untuk debugging
+        // \Log::info('Store Transaction Input', $request->all());
+
+        // Hitung total belanja dari keranjang
+        $carts = Cart::where('cashier_id', auth()->user()->id)->get();
+        $carts_total = 0;
+        foreach ($carts as $cart) {
+            $carts_total += $cart->price * $cart->qty;
+        }
+
+        // Hitung diskon
+        $discount_value = 0;
+        if ($request->discount_type === 'percentage') {
+            $discount_value = ($request->discount / 100) * $carts_total;
+        } else {
+            $discount_value = $request->discount;
+        }
+
+        // Hitung pajak
+        $taxable_amount = $carts_total - $discount_value;
+        $tax_value = ($request->tax_percentage / 100) * $taxable_amount;
+
+        // // Validasi tax_amount dan grand_total
+        // if (abs($tax_value - $request->tax_amount) > 0.01) {
+        //     \Log::error('Tax Amount Mismatch', [
+        //         'calculated' => $tax_value,
+        //         'received' => $request->tax_amount,
+        //     ]);
+        //     return back()->withErrors(['tax_amount' => 'Tax amount does not match calculated tax.']);
+        // }
+
+        // $expected_grand_total = $taxable_amount + $tax_value;
+        // if (abs($expected_grand_total - $request->grand_total) > 0.01) {
+        //     \Log::error('Grand Total Mismatch', [
+        //         'calculated' => $expected_grand_total,
+        //         'received' => $request->grand_total,
+        //     ]);
+        //     return back()->withErrors(['grand_total' => 'Grand total does not match calculated total.']);
+        // }
+
+        // Validasi change
+        // $expected_change = $request->cash - $expected_grand_total;
+        // if (abs($expected_change - $request->change) > 0.01) {
+        //     \Log::error('Change Mismatch', [
+        //         'calculated' => $expected_change,
+        //         'received' => $request->change,
+        //     ]);
+        //     return back()->withErrors(['change' => 'Change does not match calculated change.']);
+        // }
+
+        // Generate nomor invoice
         $length = 10;
         $random = '';
         for ($i = 0; $i < $length; $i++) {
             $random .= rand(0, 1) ? rand(0, 9) : chr(rand(ord('a'), ord('z')));
         }
-
-        //generate no invoice
         $invoice = 'TRX-' . Str::upper($random);
 
-        //insert transaction
+        // Insert transaksi
         $transaction = Transaction::create([
             'cashier_id' => auth()->user()->id,
             'customer_id' => $request->customer_id,
             'invoice' => $invoice,
             'cash' => $request->cash,
             'change' => $request->change,
-            'discount' => $request->discount,
+            'discount' => $discount_value,
+            'discount_type' => $request->discount_type,
+            'discount_percentage' => $request->discount_type === 'percentage' ? $request->discount : null,
+            'tax_percentage' => $request->tax_percentage,
+            'tax_amount' => $tax_value,
             'grand_total' => $request->grand_total,
         ]);
 
-        //get carts
-        $carts = Cart::where('cashier_id', auth()->user()->id)->get();
-
-        //insert transaction detail
+        // Insert detail transaksi
         foreach ($carts as $cart) {
-
-            //insert transaction detail
+            // Insert detail transaksi
             $transaction->details()->create([
                 'transaction_id' => $transaction->id,
                 'product_id' => $cart->product_id,
@@ -177,43 +231,51 @@ class TransactionController extends Controller
                 'price' => $cart->price,
             ]);
 
-            //get price
+            // Hitung keuntungan
             $total_buy_price = $cart->product->buy_price * $cart->qty;
             $total_sell_price = $cart->product->sell_price * $cart->qty;
-
-            //get profits
             $profits = $total_sell_price - $total_buy_price;
 
-            //insert provits
+            // Insert keuntungan
             $transaction->profits()->create([
                 'transaction_id' => $transaction->id,
                 'total' => $profits,
             ]);
 
-            //update stock product
+            // Update stok produk
             $product = Product::find($cart->product_id);
             $product->stock = $product->stock - $cart->qty;
             $product->save();
-
         }
 
-        //delete carts
+        // Hapus keranjang
         Cart::where('cashier_id', auth()->user()->id)->delete();
 
-        // return response()->json([
-        //     'success' => true,
-        //     'data' => $transaction
-        // ]);
         return to_route('transactions.print', $transaction->invoice);
     }
 
+    /**
+     * print
+     *
+     * @param  mixed $invoice
+     * @return void
+     */
     public function print($invoice)
     {
         //get transaction
-        $transaction = Transaction::with('details.product', 'cashier', 'customer')->where('invoice', $invoice)->firstOrFail();
+        $transaction = Transaction::with('details.product', 'cashier', 'customer')
+            ->where('invoice', $invoice)
+            ->firstOrFail();
+
+        $store = [
+            'name' => 'Nama Toko Anda',
+            'address' => 'Alamat Toko Anda',
+            'phone' => 'Nomor Telepon Toko',
+        ];
 
         return Inertia::render('Dashboard/Transactions/Print', [
-            'transaction' => $transaction
+            'transaction' => $transaction,
+            'store' => $store,
         ]);
     }
 }
