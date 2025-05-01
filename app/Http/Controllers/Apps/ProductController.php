@@ -145,7 +145,6 @@ class ProductController extends Controller
                 'sell_price' => $request->sell_price,
                 'stock' => $request->stock,
             ]);
-
         }
 
         //update product without image
