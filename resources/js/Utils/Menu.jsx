@@ -60,7 +60,7 @@ export default function Menu() {
             {
                 title: 'Transaksi History',
                 href: route('transactions-histori.index'),
-                active: url === '/dashboard/transactions-history' ? true : false, // Update comparison here
+                active: url === '/dashboard/transactions-histori' ? true : false,
                 icon: <IconFileInvoice size={20} strokeWidth={1.5} />,
                 permissions: hasAnyPermission(['transactions-access']),
             }
