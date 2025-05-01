@@ -4,7 +4,7 @@ import { Head, usePage } from '@inertiajs/react';
 import Table from '@/Components/Dashboard/Table';
 import Search from '@/Components/Dashboard/Search';
 import Pagination from '@/Components/Dashboard/Pagination';
-import { IconDatabaseOff } from '@tabler/icons-react';
+import { IconDatabaseOff, IconPrinter, IconFileDownload } from '@tabler/icons-react';
 
 const formatPrice = (price) => {
     return price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
@@ -40,8 +40,8 @@ export default function Index() {
             </div>
             <Table.Card title="Riwayat Transaksi">
                 <Table>
-                    <Table.Thead>{/* Baris ini penting - tidak ada newline */}
-                        <tr>{/* Tidak ada whitespace di sini */}
+                    <Table.Thead>
+                        <tr>
                             <Table.Th className="w-10">No</Table.Th>
                             <Table.Th className="w-40">Invoice</Table.Th>
                             <Table.Th className="w-40">Customer</Table.Th>
@@ -55,7 +55,7 @@ export default function Index() {
                         {transactionList.length ? (
                             <>
                                 {transactionList.map((trx, i) => (
-                                    <tr className="hover:bg-gray-100 dark:hover:bg-gray-900" key={trx.id}>{/* Tidak ada whitespace di sini */}
+                                    <tr className="hover:bg-gray-100 dark:hover:bg-gray-900" key={trx.id}>
                                         <Table.Td className="text-center">
                                             {isPaginated
                                                 ? ++i + (transactions.current_page - 1) * transactions.per_page
@@ -70,9 +70,9 @@ export default function Index() {
                                             <a
                                                 href={route('transactions.print', trx.invoice)}
                                                 target="_blank"
-                                                className="text-blue-600 hover:underline text-sm"
+                                                className="flex items-center gap-1 text-orange-600 hover:text-orange-800 text-sm transition-colors"
                                             >
-                                                Cetak
+                                                <IconPrinter size={16} strokeWidth={1.5} />
                                             </a>
                                         </Table.Td>
                                     </tr>
