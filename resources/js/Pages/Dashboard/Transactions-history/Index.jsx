@@ -1,423 +1,112 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import DashboardLayout from '@/Layouts/DashboardLayout';
-import { Head, router, useForm, usePage } from '@inertiajs/react';
-import Card from '@/Components/Dashboard/Card';
-import Input from '@/Components/Dashboard/Input';
-import { IconArrowRight, IconMoneybag, IconPencilPlus, IconReceipt, IconShoppingCart, IconShoppingCartPlus, IconTrash } from '@tabler/icons-react';
-import Button from '@/Components/Dashboard/Button';
-import axios from 'axios';
-import InputSelect from '@/Components/Dashboard/InputSelect';
+import { Head, usePage } from '@inertiajs/react';
 import Table from '@/Components/Dashboard/Table';
-import toast from 'react-hot-toast';
+import Search from '@/Components/Dashboard/Search';
+import Pagination from '@/Components/Dashboard/Pagination';
+import { IconDatabaseOff } from '@tabler/icons-react';
 
-// Fungsi untuk mengubah angka menjadi format Rupiah
-const formatRupiah = (number) => {
-    if (!number) return '';
-    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const formatPrice = (price) => {
+    return price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
 };
 
-// Fungsi untuk mengubah format Rupiah kembali ke angka
-const parseRupiah = (string) => {
-    return parseInt(string.replace(/\./g, '')) || 0;
-};
-
-export default function Index({ carts, carts_total, customers }) {
-    const { errors, auth } = usePage().props;
-
-    const [barcode, setBarcode] = useState('');
-    const [product, setProduct] = useState({});
-    const [qty, setQty] = useState(1);
-    const [grandTotal, setGrandTotal] = useState(carts_total);
-    const [cash, setCash] = useState(0);
-    const [cashInput, setCashInput] = useState('');
-    const [change, setChange] = useState(0);
-    const [discount, setDiscount] = useState(0);
-    const [discountInput, setDiscountInput] = useState('');
-    const [discountType, setDiscountType] = useState('rupiah');
-    const [discountPercentage, setDiscountPercentage] = useState(0);
-    const [taxPercentage, setTaxPercentage] = useState(0);
-    const [taxAmount, setTaxAmount] = useState(0);
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
-
-    // Helper function to format price
-    const formatPrice = (price) => {
-        return price.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
-    };
-
-    const { data, setData, post, processing } = useForm({
-        customer_id: '',
-        product_id: '',
-        sell_price: '',
-        qty: '',
-        discount: '',
-        discount_type: 'rupiah',
-        tax_percentage: 0,
-        tax_amount: 0,
-        cash: '',
-        change: '',
+const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('id-ID', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
     });
+};
 
-    // Set selected customer
-    const setSelectedCustomerHandler = (value) => {
-        setSelectedCustomer(value);
-        setData('customer_id', value.id);
-    };
+export default function Index() {
+    const { transactions } = usePage().props;
 
-    useEffect(() => {
-        let calculatedDiscount = discount;
-        if (discountType === 'percentage') {
-            calculatedDiscount = (discountPercentage / 100) * carts_total;
-        }
-        setDiscount(calculatedDiscount);
-
-        const taxableAmount = carts_total - calculatedDiscount;
-        const calculatedTax = (taxPercentage / 100) * taxableAmount;
-        setTaxAmount(calculatedTax);
-        setData('tax_amount', calculatedTax);
-
-        const calculatedGrandTotal = taxableAmount + calculatedTax;
-        setGrandTotal(calculatedGrandTotal);
-        setChange(cash - calculatedGrandTotal);
-        setData('grand_total', calculatedGrandTotal);
-        setData('change', cash - calculatedGrandTotal);
-
-        console.log({
-            carts_total,
-            calculatedDiscount,
-            taxableAmount,
-            taxPercentage,
-            calculatedTax,
-            calculatedGrandTotal,
-            cash,
-            change: cash - calculatedGrandTotal,
-        });
-    }, [carts_total, discount, discountType, discountPercentage, taxPercentage, cash]);
-
-    const searchProduct = (e) => {
-        e.preventDefault();
-        axios.post('/dashboard/transactions/searchProduct', { barcode })
-            .then(response => {
-                if (response.data.success) {
-                    setProduct(response.data.data);
-                } else {
-                    setProduct({});
-                }
-            });
-    };
-
-    const addToCart = (e) => {
-        e.preventDefault();
-        router.post(route('transactions.addToCart'), {
-            product_id: product.id,
-            sell_price: product.sell_price,
-            qty,
-        });
-    };
-
-    const storeTransaction = (e) => {
-        e.preventDefault();
-        if (!data.customer_id) {
-            toast('Pilih pelanggan terlebih dahulu', {
-                style: {
-                    borderRadius: '10px',
-                    background: '#FF0000',
-                    color: '#fff',
-                },
-            });
-        } else {
-            if (cash >= grandTotal) {
-                router.post(route('transactions.store'), {
-                    customer_id: selectedCustomer ? selectedCustomer.id : '',
-                    discount: discountType === 'percentage' ? discountPercentage : discount,
-                    discount_type: discountType,
-                    tax_percentage: taxPercentage,
-                    tax_amount: taxAmount,
-                    grand_total: grandTotal,
-                    cash,
-                    change,
-                }, {
-                    onSuccess: () => {
-                        toast('Data transaksi berhasil disimpan', {
-                            icon: '👏',
-                            style: {
-                                borderRadius: '10px',
-                                background: '#1C1F29',
-                                color: '#fff',
-                            },
-                        });
-                    },
-                    onError: (errors) => {
-                        console.log('Store Transaction Errors:', errors);
-                    },
-                });
-            } else {
-                toast('Uang tunai tidak cukup', {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#FF0000',
-                        color: '#fff',
-                    },
-                });
-            }
-        }
-    };
-
-    // Handler untuk input Diskon (Rupiah)
-    const handleDiscountChange = (e) => {
-        const value = e.target.value.replace(/\D/g, '');
-        setDiscountInput(formatRupiah(value));
-        setDiscount(parseRupiah(value));
-    };
-
-    // Handler untuk input Diskon (Persentase)
-    const handleDiscountPercentageChange = (e) => {
-        const value = parseInt(e.target.value) || 0;
-        if (value >= 0 && value <= 100) {
-            setDiscountPercentage(value);
-        }
-    };
-
-    // Handler untuk input Pajak (Persentase)
-    const handleTaxPercentageChange = (e) => {
-        const value = parseFloat(e.target.value) || 0;
-        if (value >= 0 && value <= 100) {
-            setTaxPercentage(value);
-            setData('tax_percentage', value);
-        }
-    };
-
-    // Handler untuk input Bayar
-    const handleCashChange = (e) => {
-        const value = e.target.value.replace(/\D/g, '');
-        setCashInput(formatRupiah(value));
-        setCash(parseRupiah(value));
-    };
-
-    // Fungsi untuk mendapatkan label jenis diskon
-    const getDiscountTypeLabel = () => {
-        return discountType === 'rupiah' ? 'Rupiah (Rp)' : 'Persentase (%)';
-    };
+    // Tentukan apakah transactions memiliki struktur paginasi
+    const isPaginated = transactions && transactions.data && Array.isArray(transactions.data);
+    const transactionList = isPaginated ? transactions.data : Array.isArray(transactions) ? transactions : [];
 
     return (
         <>
-            <Head title="Dashboard Transaksi" />
-            <div className="grid grid-cols-12 gap-4">
-                <div className="col-span-12 md:col-span-4">
-                    <Card
-                        title={'Tambah Data Produk'}
-                        icon={<IconShoppingCart size={20} strokeWidth={1.5} />}
-                        footer={
-                            <Button
-                                type={'submit'}
-                                label={'Tambah'}
-                                icon={<IconShoppingCartPlus size={20} strokeWidth={1.5} />}
-                                disabled={!product.id}
-                                className={`border bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-950 dark:border-gray-800 dark:text-gray-200 dark:hover:bg-gray-900 mt-5 ${!product.id ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            />
-                        }
-                        form={addToCart}
-                    >
-                        <div className="mb-2">
-                            <Input
-                                type={'text'}
-                                label={'Scan/Input Barcode Produk'}
-                                placeholder={'Barcode Produk'}
-                                onChange={e => setBarcode(e.target.value)}
-                                onKeyUp={searchProduct}
-                            />
-                        </div>
-                        <div className="mb-2">
-                            <Input
-                                type={'text'}
-                                label={'Produk'}
-                                placeholder={'Nama produk'}
-                                disabled
-                                value={product.title || ''}
-                            />
-                        </div>
-                        <div className="mb-2">
-                            <Input
-                                type={'number'}
-                                label={'Kuantitas'}
-                                placeholder={'Kuantitas'}
-                                onChange={e => setQty(e.target.value)}
-                            />
-                            <small className="text-gray-500">
-                                Stok : {product.stock || 0}
-                            </small>
-                        </div>
-                    </Card>
-                </div>
-                <div className="col-span-12 md:col-span-8">
-                    <Card
-                        title={'Transaksi'}
-                        icon={<IconPencilPlus size={20} strokeWidth={1.5} />}
-                    >
-                        <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-12">
-                                <div className="flex justify-between">
-                                    <h1 className="text-lg md:text-2xl text-black dark:text-white">Total Belanja</h1>
-                                    <h1 className="text-lg md:text-2xl text-black dark:text-white">
-                                        {formatPrice(carts_total)}
-                                    </h1>
-                                </div>
-                            </div>
-                            <div className="col-span-12 md:col-span-6">
-                                <Input
-                                    type={'text'}
-                                    label={'Kasir'}
-                                    placeholder={'Kasir'}
-                                    disabled
-                                    value={auth.user.name}
-                                />
-                            </div>
-                            <div className="col-span-12 md:col-span-6">
-                                <InputSelect
-                                    label="Pelanggan"
-                                    data={customers}
-                                    selected={selectedCustomer}
-                                    setSelected={setSelectedCustomerHandler}
-                                    placeholder="Pelanggan"
-                                    errors={errors.customer_id}
-                                    multiple={false}
-                                    searchable={true}
-                                    displayKey='name'
-                                />
-                            </div>
-                        </div>
-                    </Card>
-
-                    <Table.Card title={'Keranjang'} className={'mt-5'}>
-                        <Table>
-                            <Table.Thead>
-                                <tr>
-                                    <Table.Th className='w-10'>No</Table.Th>
-                                    <Table.Th>Produk</Table.Th>
-                                    <Table.Th>Harga</Table.Th>
-                                    <Table.Th>Qty</Table.Th>
-                                    <Table.Th>Sub Total</Table.Th>
-                                    <Table.Th></Table.Th>
-                                </tr>
-                            </Table.Thead>
-                            <Table.Tbody>
-                                {carts.map((item, index) => (
-                                    <tr key={item.id}>
-                                        <Table.Td className='w-10'>{index + 1}</Table.Td>
-                                        <Table.Td>{item.product.title}</Table.Td>
-                                        <Table.Td>{formatPrice(item.price)}</Table.Td>
-                                        <Table.Td>{item.qty}</Table.Td>
-                                        <Table.Td>{formatPrice(item.price * item.qty)}</Table.Td>
-                                        <Table.Td>
-                                            <Button
-                                                type={'delete'}
-                                                icon={<IconTrash size={16} strokeWidth={1.5} />}
-                                                className={'border bg-rose-100 border-rose-300 text-rose-500 hover:bg-rose-200 dark:bg-rose-950 dark:border-rose-800 dark:text-gray-300  dark:hover:bg-rose-900'}
-                                                url={route('transactions.destroyCart', item.id)}
-                                            />
-                                        </Table.Td>
-                                    </tr>
-                                ))}
-                            </Table.Tbody>
-                            <tfoot>
-                                <tr>
-                                    <Table.Td></Table.Td>
-                                    <Table.Td></Table.Td>
-                                    <Table.Td></Table.Td>
-                                    <Table.Td>Total</Table.Td>
-                                    <Table.Td>{formatPrice(carts_total)}</Table.Td>
-                                    <Table.Td></Table.Td>
-                                </tr>
-                            </tfoot>
-                        </Table>
-                    </Table.Card>
-
-                    <div className="my-5"></div>
-
-                    <Card
-                        title={'Pembayaran'}
-                        icon={<IconReceipt size={20} strokeWidth={1.5} />}
-                    >
-                        <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-2 md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Jenis Diskon</label>
-                                <select
-                                    value={discountType}
-                                    onChange={(e) => {
-                                        setDiscountType(e.target.value);
-                                        setData('discount_type', e.target.value);
-                                        setDiscount(0);
-                                        setDiscountInput('');
-                                        setDiscountPercentage(0);
-                                    }}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-gray-900 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-600 text-sm py-2 px-3"
-                                >
-                                    <option value="rupiah">Rupiah (Rp)</option>
-                                    <option value="percentage">Persentase (%)</option>
-                                </select>
-                            </div>
-                            <div className="col-span-10 md:col-span-5">
-                                <Input
-                                    type={discountType === 'rupiah' ? 'text' : 'number'}
-                                    label={`Diskon ${discountType === 'rupiah' ? '(Rp)' : '(%)'}`}
-                                    placeholder={`Diskon ${discountType === 'rupiah' ? '(Rp)' : '(%)'}`}
-                                    value={discountType === 'rupiah' ? discountInput : discountPercentage}
-                                    onChange={discountType === 'rupiah' ? handleDiscountChange : handleDiscountPercentageChange}
-                                    min={discountType === 'percentage' ? 0 : undefined}
-                                    max={discountType === 'percentage' ? 100 : undefined}
-                                />
-                                {discountType === 'percentage' && discount > 0 && (
-                                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                        Nilai Diskon: {formatPrice(discount)}
-                                    </p>
-                                )}
-                            </div>
-                            <div className="col-span-12 md:col-span-5">
-                                <Input
-                                    type="number"
-                                    label="Pajak (%)"
-                                    placeholder="Pajak (%)"
-                                    value={taxPercentage}
-                                    onChange={handleTaxPercentageChange}
-                                    min={0}
-                                    max={100}
-                                    step="0.01"
-                                />
-                                {taxAmount > 0 && (
-                                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                                        Nilai Pajak: {formatPrice(taxAmount)}
-                                    </p>
-                                )}
-                            </div>
-                            <div className="col-span-12 md:col-span-6">
-                                <Input
-                                    type={'text'}
-                                    label={'Bayar'}
-                                    placeholder="Bayar (Rp)"
-                                    value={cashInput}
-                                    onChange={handleCashChange}
-                                />
-                            </div>
-                            {/* Debugging: Tampilkan grand_total dan change di UI */}
-                            <div className="col-span-12 text-sm text-gray-500">
-                                <p>Grand Total: {formatPrice(grandTotal)}</p>
-                                <p>Kembalian: {formatPrice(change)}</p>
-                            </div>
-                        </div>
-                        <Button
-                            type={'submit'}
-                            label={'Bayar'}
-                            icon={<IconMoneybag size={20} strokeWidth={1.5} />}
-                            onClick={storeTransaction}
-                            disabled={cash < grandTotal}
-                            className={`border bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-950 dark:border-gray-800 dark:text-gray-200 dark:hover:bg-gray-900 mt-5 ${cash < grandTotal ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            Bayar
-                        </Button>
-                    </Card>
+            <Head title="Histori Transaksi" />
+            <div className="mb-2">
+                <div className="flex justify-between items-center gap-2">
+                    <div className="w-full md:w-4/12">
+                        <Search
+                            url={route('transactions-histori.index')}
+                            placeholder="Cari transaksi berdasarkan invoice atau nama pelanggan..."
+                        />
+                    </div>
                 </div>
             </div>
+            <Table.Card title="Riwayat Transaksi">
+                <Table>
+                    <Table.Thead>
+                        <tr>
+                            <Table.Th className="w-10">No</Table.Th>
+                            <Table.Th className="w-40">Invoice</Table.Th>
+                            <Table.Th className="w-40">Customer</Table.Th>
+                            <Table.Th className="w-32">Tanggal</Table.Th>
+                            <Table.Th className="w-40">Total</Table.Th>
+                            <Table.Th className="w-20"></Table.Th>
+                        </tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                        {transactionList.length ? (
+                            transactionList.map((trx, i) => (
+                                <tr
+                                    className="hover:bg-gray-100 dark:hover:bg-gray-900"
+                                    key={trx.id}
+                                >
+                                    <Table.Td className="text-center">
+                                        {isPaginated
+                                            ? ++i + (transactions.current_page - 1) * transactions.per_page
+                                            : ++i}
+                                    </Table.Td>
+                                    <Table.Td>{trx.invoice}</Table.Td>
+                                    <Table.Td>{trx.customer?.name || '-'}</Table.Td>
+                                    <Table.Td>{formatDate(trx.created_at)}</Table.Td>
+                                    <Table.Td>{formatPrice(trx.grand_total)}</Table.Td>
+                                    <Table.Td>
+                                        <a
+                                            href={route('transactions.print', trx.invoice)}
+                                            target="_blank"
+                                            className="text-blue-600 hover:underline text-sm"
+                                        >
+                                            Cetak
+                                        </a>
+                                    </Table.Td>
+                                </tr>
+                            ))
+                        ) : (
+                            <Table.Empty
+                                colSpan={6}
+                                message={
+                                    <>
+                                        <div className="flex justify-center items-center text-center mb-2">
+                                            <IconDatabaseOff
+                                                size={24}
+                                                strokeWidth={1.5}
+                                                className="text-gray-500 dark:text-white"
+                                            />
+                                        </div>
+                                        <span className="text-gray-500">
+                                            Data transaksi
+                                        </span>{' '}
+                                        <span className="text-rose-500 underline underline-offset-2">
+                                            tidak ditemukan.
+                                        </span>
+                                    </>
+                                }
+                            />
+                        )}
+                    </Table.Tbody>
+                </Table>
+            </Table.Card>
+            {isPaginated && transactions.last_page !== 1 && (
+                <Pagination links={transactions.links} />
+            )}
         </>
     );
 }
 
-Index.layout = page => <DashboardLayout children={page} />;
+Index.layout = (page) => <DashboardLayout children={page} />;

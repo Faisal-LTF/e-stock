@@ -89,11 +89,12 @@ export default function Sidebar({ sidebarOpen }) {
                                                 />
                                             ) : (
                                                 <LinkItem
-                                                    sidebarOpen={sidebarOpen}
-                                                    key={x}
-                                                    access={link.permissions}
-                                                    icon={detail.icon}
-                                                    href={detail.href}
+                                                sidebarOpen={sidebarOpen}
+                                                key={x}
+                                                access={detail.permissions} // Perbaikan: Gunakan detail.permissions
+                                                icon={detail.icon}
+                                                href={detail.href}
+                                                title={detail.title} // Tambahkan title untuk konsistensi
                                                 />
                                             )
                                         )

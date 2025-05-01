@@ -53,10 +53,17 @@ export default function Menu() {
             {
                 title: 'Transaksi',
                 href: route('transactions.index'),
-                active: url === '/dashboard/customers' ? true : false, // Update comparison here
+                active: url === '/dashboard/transactions' ? true : false, // Update comparison here
                 icon: <IconShoppingCart size={20} strokeWidth={1.5} />,
                 permissions: hasAnyPermission(['transactions-access']),
             },
+            {
+                title: 'Transaksi History',
+                href: route('transactions-histori.index'),
+                active: url === '/dashboard/transactions-history' ? true : false, // Update comparison here
+                icon: <IconShoppingCart size={20} strokeWidth={1.5} />,
+                permissions: hasAnyPermission(['transactions-access']),
+            }
         ]
     },
     {

@@ -93,7 +93,7 @@ class TransactionController extends Controller
             // Tambah kuantitas
             $cart->qty += $request->qty;
 
-            // ✅ Tetapkan ulang harga satuan jika perlu (opsional, atau bisa diabaikan kalau tidak berubah)
+            //  Tetapkan ulang harga satuan jika perlu (opsional, atau bisa diabaikan kalau tidak berubah)
             $cart->price = $cart->product->sell_price;
 
             $cart->save();
@@ -103,7 +103,7 @@ class TransactionController extends Controller
                 'cashier_id' => auth()->user()->id,
                 'product_id' => $request->product_id,
                 'qty' => $request->qty,
-                'price' => $request->sell_price, // ✅ hanya harga satuan!
+                'price' => $request->sell_price, //  hanya harga satuan!
             ]);
         }
 
@@ -276,6 +276,18 @@ class TransactionController extends Controller
         return Inertia::render('Dashboard/Transactions/Print', [
             'transaction' => $transaction,
             'store' => $store,
+        ]);
+    }
+
+    public function history()
+    {
+        $transactions = Transaction::with('customer')
+            ->where('cashier_id', auth()->id())
+            ->latest()
+            ->get();
+
+        return Inertia::render('Dashboard/Transactions-history/Index', [
+            'transactions' => $transactions
         ]);
     }
 }

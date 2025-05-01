@@ -50,6 +50,11 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::post('/transactions/store', [\App\Http\Controllers\Apps\TransactionController::class, 'store'])->name('transactions.store');
     Route::get('/transactions/{invoice}/print', [\App\Http\Controllers\Apps\TransactionController::class, 'print'])->name('transactions.print');
 
+    //route transaction histori store
+    // Route::get('/transactions-histori', [\App\Http\Controllers\Apps\TransactionController::class, 'history'])->name('transactions.history');
+    Route::get('/transactions-histori', [\App\Http\Controllers\Apps\TransactionController::class, 'history'])->name('transactions-histori.index');
+
+
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
