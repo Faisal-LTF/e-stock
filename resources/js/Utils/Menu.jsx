@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/react';
-import { IconBooks, IconBox, IconCategory, IconChartArrowsVertical, IconChartBarPopular, IconChartInfographic, IconCirclePlus, IconClockHour6, IconFileCertificate, IconFileDescription, IconFolder, IconLayout2, IconSchool, IconShoppingCart, IconTable, IconUserBolt, IconUserShield, IconUserSquare, IconUsers, IconUsersPlus } from '@tabler/icons-react';
+import { IconBooks, IconBox, IconCategory, IconChartArrowsVertical, IconChartBarPopular, IconChartInfographic, IconCirclePlus, IconClockHour6, IconFileCertificate, IconFileDescription, IconFolder, IconLayout2, IconSchool, IconShoppingCart, IconTable,  IconUserBolt, IconFileInvoice, IconUserShield, IconUserSquare, IconUsers, IconUsersPlus } from '@tabler/icons-react';
 import hasAnyPermission from './Permission';
 import React from 'react'
 
@@ -61,7 +61,7 @@ export default function Menu() {
                 title: 'Transaksi History',
                 href: route('transactions-histori.index'),
                 active: url === '/dashboard/transactions-history' ? true : false, // Update comparison here
-                icon: <IconShoppingCart size={20} strokeWidth={1.5} />,
+                icon: <IconFileInvoice size={20} strokeWidth={1.5} />,
                 permissions: hasAnyPermission(['transactions-access']),
             }
         ]

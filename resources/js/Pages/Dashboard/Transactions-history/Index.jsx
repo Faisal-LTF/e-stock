@@ -39,51 +39,47 @@ export default function Index() {
                 </div>
             </div>
             <Table.Card title="Riwayat Transaksi">
-            <Table>
-                <Table.Thead>
-                    <tr>
-                        <Table.Th className="w-10">No</Table.Th>
-                        <Table.Th className="w-40">Invoice</Table.Th>
-                        <Table.Th className="w-40">Customer</Table.Th>
-                        <Table.Th className="w-32">Tanggal</Table.Th>
-                        <Table.Th className="w-40">Total</Table.Th>
-                        <Table.Th className="w-40">Kasir</Table.Th> {/* Kolom Kasir */}
-                        <Table.Th className="w-20"></Table.Th>
-                    </tr>
-                </Table.Thead>
-                <Table.Tbody>
-                    {transactionList.length ? (
-                        transactionList.map((trx, i) => (
-                            <tr
-                                className="hover:bg-gray-100 dark:hover:bg-gray-900"
-                                key={trx.id}
-                            >
-                                <Table.Td className="text-center">
-                                    {isPaginated
-                                        ? ++i + (transactions.current_page - 1) * transactions.per_page
-                                        : ++i}
-                                </Table.Td>
-                                <Table.Td>{trx.invoice}</Table.Td>
-                                <Table.Td>{trx.customer?.name || '-'}</Table.Td>
-                                <Table.Td>{formatDate(trx.created_at)}</Table.Td>
-                                <Table.Td>{formatPrice(trx.grand_total)}</Table.Td>
-                                <Table.Td>{trx.cashier?.name || '-'}</Table.Td> {/* Menampilkan Nama Kasir */}
-                                <Table.Td>
-                                    <a
-                                        href={route('transactions.print', trx.invoice)}
-                                        target="_blank"
-                                        className="text-blue-600 hover:underline text-sm"
-                                    >
-                                        Cetak
-                                    </a>
-                                </Table.Td>
-                            </tr>
-                        ))
-                    ) : (
-                        // Ganti 6 jadi 7 karena ada kolom kasir
-                        <Table.Empty
-                            colSpan={7}
-                            message={
+                <Table>
+                    <Table.Thead>{/* Baris ini penting - tidak ada newline */}
+                        <tr>{/* Tidak ada whitespace di sini */}
+                            <Table.Th className="w-10">No</Table.Th>
+                            <Table.Th className="w-40">Invoice</Table.Th>
+                            <Table.Th className="w-40">Customer</Table.Th>
+                            <Table.Th className="w-32">Tanggal</Table.Th>
+                            <Table.Th className="w-40">Total</Table.Th>
+                            <Table.Th className="w-40">Kasir</Table.Th>
+                            <Table.Th className="w-20"></Table.Th>
+                        </tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                        {transactionList.length ? (
+                            <>
+                                {transactionList.map((trx, i) => (
+                                    <tr className="hover:bg-gray-100 dark:hover:bg-gray-900" key={trx.id}>{/* Tidak ada whitespace di sini */}
+                                        <Table.Td className="text-center">
+                                            {isPaginated
+                                                ? ++i + (transactions.current_page - 1) * transactions.per_page
+                                                : ++i}
+                                        </Table.Td>
+                                        <Table.Td>{trx.invoice}</Table.Td>
+                                        <Table.Td>{trx.customer?.name || '-'}</Table.Td>
+                                        <Table.Td>{formatDate(trx.created_at)}</Table.Td>
+                                        <Table.Td>{formatPrice(trx.grand_total)}</Table.Td>
+                                        <Table.Td>{trx.cashier?.name || '-'}</Table.Td>
+                                        <Table.Td>
+                                            <a
+                                                href={route('transactions.print', trx.invoice)}
+                                                target="_blank"
+                                                className="text-blue-600 hover:underline text-sm"
+                                            >
+                                                Cetak
+                                            </a>
+                                        </Table.Td>
+                                    </tr>
+                                ))}
+                            </>
+                        ) : (
+                            <Table.Empty colSpan={7} message={
                                 <>
                                     <div className="flex justify-center items-center text-center mb-2">
                                         <IconDatabaseOff
@@ -99,12 +95,11 @@ export default function Index() {
                                         tidak ditemukan.
                                     </span>
                                 </>
-                            }
-                        />
-                    )}
-                </Table.Tbody>
-            </Table>
-        </Table.Card>
+                            } />
+                        )}
+                    </Table.Tbody>
+                </Table>
+            </Table.Card>
 
             {isPaginated && transactions.last_page !== 1 && (
                 <Pagination links={transactions.links} />

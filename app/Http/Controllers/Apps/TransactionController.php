@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\Transaction;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class TransactionController extends Controller
@@ -281,14 +282,26 @@ class TransactionController extends Controller
 
     public function history()
     {
-        // Memuat relasi customer dan cashier (kasir)
-        $transactions = Transaction::with('customer', 'cashier')  // Memuat relasi kasir dan customer
-            ->where('cashier_id', auth()->id())  // Menyaring transaksi berdasarkan ID kasir yang login
-            ->latest()  // Mengurutkan berdasarkan transaksi terbaru
-            ->get();
+        $query = Transaction::with(['customer', 'cashier']);
+
+        // Cek jika user bukan super-admin dengan memeriksa relasi role
+        // Asumsi: menggunakan pivot table 'model_has_roles' dari package Spatie Laravel Permission
+        $user = auth()->user();
+        $isSuperAdmin = DB::table('model_has_roles')
+            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->where('model_has_roles.model_id', $user->id)
+            ->where('roles.name', 'super-admin')
+            ->exists();
+
+        // Jika bukan super-admin, filter berdasarkan cashier_id
+        if (!$isSuperAdmin) {
+            $query->where('cashier_id', auth()->id());
+        }
+
+        $transactions = $query->latest()->get();
 
         return Inertia::render('Dashboard/Transactions-history/Index', [
-            'transactions' => $transactions,
+            'transactions' => $transactions
         ]);
     }
 }

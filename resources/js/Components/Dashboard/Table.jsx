@@ -12,7 +12,6 @@ const Card = ({ icon, title, className, children }) => {
                 {children}
             </div>
         </>
-
     )
 }
 
@@ -27,8 +26,20 @@ const Table = ({ children }) => {
 };
 
 const Thead = ({ className, children }) => {
+    // Trik untuk menghilangkan whitespace text nodes
     return (
-        <thead className={`${className} border-b bg-gray-50 dark:border-gray-900 dark:bg-gray-950`}>{children}</thead>
+        <thead className={`${className} border-b bg-gray-50 dark:border-gray-900 dark:bg-gray-950`}>
+            {React.Children.toArray(children).map(child => {
+                // Jika child adalah tr element
+                if (child && child.type === 'tr') {
+                    // Clone tr dan pastikan children-nya tidak memiliki whitespace
+                    return React.cloneElement(child, {},
+                        React.Children.toArray(child.props.children)
+                    );
+                }
+                return child;
+            })}
+        </thead>
     );
 };
 
@@ -42,9 +53,7 @@ const Tbody = ({ className, children }) => {
 
 const Td = ({ className, children }) => {
     return (
-        <td
-            className={`${className} whitespace-nowrap p-4 align-middle text-gray-700 dark:text-gray-400`}
-        >
+        <td className={`${className} whitespace-nowrap p-4 align-middle text-gray-700 dark:text-gray-400`}>
             {children}
         </td>
     );
