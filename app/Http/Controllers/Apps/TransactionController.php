@@ -281,13 +281,14 @@ class TransactionController extends Controller
 
     public function history()
     {
-        $transactions = Transaction::with('customer')
-            ->where('cashier_id', auth()->id())
-            ->latest()
+        // Memuat relasi customer dan cashier (kasir)
+        $transactions = Transaction::with('customer', 'cashier')  // Memuat relasi kasir dan customer
+            ->where('cashier_id', auth()->id())  // Menyaring transaksi berdasarkan ID kasir yang login
+            ->latest()  // Mengurutkan berdasarkan transaksi terbaru
             ->get();
 
         return Inertia::render('Dashboard/Transactions-history/Index', [
-            'transactions' => $transactions
+            'transactions' => $transactions,
         ]);
     }
 }

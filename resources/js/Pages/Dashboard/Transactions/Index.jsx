@@ -80,17 +80,6 @@ export default function Index({ carts, carts_total, customers }) {
         setChange(cash - calculatedGrandTotal);
         setData('grand_total', calculatedGrandTotal);
         setData('change', cash - calculatedGrandTotal);
-
-        console.log({
-            carts_total,
-            calculatedDiscount,
-            taxableAmount,
-            taxPercentage,
-            calculatedTax,
-            calculatedGrandTotal,
-            cash,
-            change: cash - calculatedGrandTotal,
-        });
     }, [carts_total, discount, discountType, discountPercentage, taxPercentage, cash]);
 
     const searchProduct = (e) => {
