@@ -49,7 +49,7 @@ export default function Print({ transaction, store }) {
                     <div>
                         <h2 className="text-lg font-semibold">Invoice</h2>
                         <p>No: {transaction.invoice}</p>
-                        <p>Date: {new Date(transaction.created_at).toLocaleDateString()}</p>
+                        <p>Tanggal: {new Date(transaction.created_at).toLocaleDateString()}</p>
                     </div>
                 </div>
                 <table className="w-full text-left">
@@ -74,7 +74,7 @@ export default function Print({ transaction, store }) {
                         ))}
 
                         {/* Tambah baris kosong jika kurang dari 3 */}
-                        {Array.from({ length: 3 - transaction.details.length }, (_, i) => (
+                        {Array.from({ length: 2 - transaction.details.length }, (_, i) => (
                             <tr key={`empty-${i}`}>
                                 <td className="py-4">&nbsp;</td>
                                 <td className="py-4">&nbsp;</td>
