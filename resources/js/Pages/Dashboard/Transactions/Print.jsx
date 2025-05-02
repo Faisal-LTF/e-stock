@@ -18,10 +18,10 @@ export default function Print({ transaction, store }) {
         <>
             <Head title="Print Invoice" />
             {/* Memperlebar ukuran maksimal container */}
-            <div className="max-w-4xl mx-auto p-4 bg-white dark:bg-black text-black dark:text-white text-sm">
+            <div className="max-w-3xl mx-auto p-4 bg-white dark:bg-black text-black dark:text-white text-sm">
                 <div className="text-center mb-8">
-                    <h1 className="text-2xl font-bold">{store?.name || 'Toko'}</h1>
-                    <p>{store?.address || 'Alamat Toko'}</p>
+                    <h1 className="text-4xl font-bold text-green-500">{store?.name || 'Toko'}</h1>
+                    <p className="text-">{store?.address || 'Alamat Toko'}</p>
                     <p>{store?.phone || 'Nomor Telepon'}</p>
                 </div>
 

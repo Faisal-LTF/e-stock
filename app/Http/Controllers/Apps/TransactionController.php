@@ -269,9 +269,9 @@ class TransactionController extends Controller
             ->firstOrFail();
 
         $store = [
-            'name' => 'Nama Toko Anda',
-            'address' => 'Alamat Toko Anda',
-            'phone' => 'Nomor Telepon Toko',
+            'name' => 'AMA',
+            'address' => ' jl.trantang kelurahan bitahan kecamatan lokpaika',
+            'phone' => '083141835652',
         ];
 
         return Inertia::render('Dashboard/Transactions/Print', [
