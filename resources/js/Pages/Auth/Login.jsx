@@ -27,10 +27,17 @@ export default function Login({ status, canResetPassword }) {
             <div className="min-h-screen flex items-center justify-center bg-gray-100">
                 <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
                     <div className="text-center mb-6">
-                        <ApplicationLogo className="w-20 h-20 mx-auto mb-4" />
-                        <h1 className='text-3xl text-black font-bold mb-2'>Aplikasi Kasir</h1>
+                    <div className="flex justify-center items-center px-6 py-2 h-16 mb-5 mt-2">
+                        {/* Replace AMA text with logo */}
+                        <img
+                            src="/img/amaa.png" // Update with the correct path to your logo
+                            alt="Logo"
+                            className="h-28 w-auto" // Adjust size as needed
+                        />
+                    </div>
+                        {/* <h1 className='text-3xl text-black font-bold mb-2'>Aplikasi Kasir</h1> */}
                         <h2 className="text-xl font-semibold text-gray-700">Login</h2>
-                        <p className="text-gray-500">Lanjutkan ke Dashboard</p>
+                        {/* <p className="text-gray-500">Lanjutkan ke Dashboard</p> */}
                     </div>
 
                     <form onSubmit={submit}>
@@ -77,7 +84,7 @@ export default function Login({ status, canResetPassword }) {
                         <div>
                             <button
                                 type="submit"
-                                className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                className="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-md shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                             >
                                 Masuk
                             </button>

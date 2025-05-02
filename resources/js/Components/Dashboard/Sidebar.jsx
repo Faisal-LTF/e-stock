@@ -14,9 +14,12 @@ export default function Sidebar({ sidebarOpen }) {
             {sidebarOpen ? (
                 <>
                     <div className="flex justify-center items-center px-6 py-2 h-16">
-                        <div className="text-2xl font-bold text-center leading-loose tracking-wider text-gray-900 dark:text-gray-200">
-                            AMA
-                        </div>
+                        {/* Replace AMA text with logo */}
+                        <img
+                            src="/img/ama.png" // Update with the correct path to your logo
+                            alt="Logo"
+                            className="h-7 w-auto" // Adjust size as needed
+                        />
                     </div>
                     <div className="w-full p-3 flex items-center gap-4 border-b border-t dark:bg-gray-950/50 dark:border-gray-900">
                         <img src={auth.user.avatar ? auth.user.avatar : "https://ui-avatars.com/api/?name=" + auth.user.name} className="w-12 h-12 rounded-full" />
