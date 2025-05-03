@@ -61,7 +61,7 @@ export default function Print({ transaction, store }) {
                         </div>
                     </div>
                     <div>
-                        <h2 className="text-lg font-semibold">Invoice</h2>
+                        <h2 className="text-lg font-semibold">Faktur </h2>
                         <p>No: {transaction.invoice}</p>
                         <p>Tanggal: {new Date(transaction.created_at).toLocaleDateString()}</p>
                     </div>
