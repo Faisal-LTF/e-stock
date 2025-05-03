@@ -103,6 +103,7 @@ export default function Index({ carts, carts_total, customers }) {
         });
     };
 
+    // Modify the storeTransaction function to open in a new tab instead of navigating
     const storeTransaction = (e) => {
         e.preventDefault();
         if (!data.customer_id) {
@@ -115,7 +116,8 @@ export default function Index({ carts, carts_total, customers }) {
             });
         } else {
             if (cash >= grandTotal) {
-                router.post(route('transactions.store'), {
+                // Use axios for the form submission instead of router.post
+                axios.post(route('transactions.store'), {
                     customer_id: selectedCustomer ? selectedCustomer.id : '',
                     discount: discountType === 'percentage' ? discountPercentage : discount,
                     discount_type: discountType,
@@ -124,20 +126,31 @@ export default function Index({ carts, carts_total, customers }) {
                     grand_total: grandTotal,
                     cash,
                     change,
-                }, {
-                    onSuccess: () => {
-                        toast('Data transaksi berhasil disimpan', {
-                            icon: '👏',
-                            style: {
-                                borderRadius: '10px',
-                                background: '#1C1F29',
-                                color: '#fff',
-                            },
-                        });
-                    },
-                    onError: (errors) => {
-                        console.log('Store Transaction Errors:', errors);
-                    },
+                }).then(response => {
+                    toast('Data transaksi berhasil disimpan', {
+                        icon: '👏',
+                        style: {
+                            borderRadius: '10px',
+                            background: '#1C1F29',
+                            color: '#fff',
+                        },
+                    });
+
+                    // Open the print page in a new tab using the invoice from the response
+                    const invoice = response.data.invoice;
+                    window.open(route('transactions.print', invoice), '_blank');
+
+                    // Refresh the current page to update the cart
+                    window.location.reload();
+                }).catch(error => {
+                    console.log('Store Transaction Errors:', error);
+                    toast('Terjadi kesalahan saat menyimpan transaksi', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#FF0000',
+                            color: '#fff',
+                        },
+                    });
                 });
             } else {
                 toast('Uang tunai tidak cukup', {
@@ -160,28 +173,43 @@ export default function Index({ carts, carts_total, customers }) {
 
     // Handler untuk input Diskon (Persentase)
     const handleDiscountPercentageChange = (e) => {
-        const value = parseInt(e.target.value) || 0;
-        if (value >= 0 && value <= 100) {
-            setDiscountPercentage(value);
+        const value = e.target.value;
+        if (value === '') {
+            setDiscountPercentage(0);
+        } else {
+            const numValue = parseInt(value) || 0;
+            if (numValue >= 0 && numValue <= 100) {
+                setDiscountPercentage(numValue);
+            }
         }
     };
 
     // Handler untuk input Pajak (Persentase)
     const handleTaxPercentageChange = (e) => {
-        const value = parseFloat(e.target.value) || 0;
-        if (value >= 0 && value <= 100) {
-            setTaxPercentage(value);
-            setData('tax_percentage', value);
+        const value = e.target.value;
+        if (value === '') {
+            setTaxPercentage(0);
+            setData('tax_percentage', 0);
+        } else {
+            const numValue = parseFloat(value) || 0;
+            if (numValue >= 0 && numValue <= 100) {
+                setTaxPercentage(numValue);
+                setData('tax_percentage', numValue);
+            }
         }
     };
 
     // Handler untuk input Bayar
     const handleCashChange = (e) => {
         const value = e.target.value.replace(/\D/g, '');
-        setCashInput(formatRupiah(value));
-        setCash(parseRupiah(value));
+        if (value === '') {
+            setCashInput('');
+            setCash(0);
+        } else {
+            setCashInput(formatRupiah(value));
+            setCash(parseRupiah(value));
+        }
     };
-
     // Fungsi untuk mendapatkan label jenis diskon
     const getDiscountTypeLabel = () => {
         return discountType === 'rupiah' ? 'Rupiah (Rp)' : 'Persentase (%)';
@@ -327,7 +355,7 @@ export default function Index({ carts, carts_total, customers }) {
                         icon={<IconReceipt size={20} strokeWidth={1.5} />}
                     >
                         <div className="grid grid-cols-12 gap-4">
-                            <div className="col-span-2 md:col-span-2">
+                            <div className="col-span-2 md:col-span-3">
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Jenis Diskon</label>
                                 <select
                                     value={discountType}
@@ -344,12 +372,12 @@ export default function Index({ carts, carts_total, customers }) {
                                     <option value="percentage">Persentase (%)</option>
                                 </select>
                             </div>
-                            <div className="col-span-10 md:col-span-5">
+                            <div className="col-span-10 md:col-span-4">
                                 <Input
                                     type={discountType === 'rupiah' ? 'text' : 'number'}
                                     label={`Diskon ${discountType === 'rupiah' ? '(Rp)' : '(%)'}`}
-                                    placeholder={`Diskon ${discountType === 'rupiah' ? '(Rp)' : '(%)'}`}
-                                    value={discountType === 'rupiah' ? discountInput : discountPercentage}
+                                    placeholder={`Silahkan Masukan Nilai  Diskon ${discountType === 'rupiah' ? '(Rp)' : '(%)'}`}
+                                    value={discountType === 'rupiah' ? discountInput : (discountPercentage === 0 ? '' : discountPercentage)}
                                     onChange={discountType === 'rupiah' ? handleDiscountChange : handleDiscountPercentageChange}
                                     min={discountType === 'percentage' ? 0 : undefined}
                                     max={discountType === 'percentage' ? 100 : undefined}
@@ -360,12 +388,12 @@ export default function Index({ carts, carts_total, customers }) {
                                     </p>
                                 )}
                             </div>
-                            <div className="col-span-12 md:col-span-5">
+                            <div className="col-span-12 md:col-span-4">
                                 <Input
                                     type="number"
                                     label="Pajak (%)"
-                                    placeholder="Pajak (%)"
-                                    value={taxPercentage}
+                                    placeholder="Silahkan Masukan Pajak (%)"
+                                    value={taxPercentage === 0 ? '' : taxPercentage}
                                     onChange={handleTaxPercentageChange}
                                     min={0}
                                     max={100}

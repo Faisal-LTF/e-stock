@@ -149,9 +149,6 @@ class TransactionController extends Controller
             'change' => 'required|numeric',
         ]);
 
-        // Log input untuk debugging
-        // \Log::info('Store Transaction Input', $request->all());
-
         // Hitung total belanja dari keranjang
         $carts = Cart::where('cashier_id', auth()->user()->id)->get();
         $carts_total = 0;
@@ -224,7 +221,8 @@ class TransactionController extends Controller
         // Hapus keranjang
         Cart::where('cashier_id', auth()->user()->id)->delete();
 
-        return to_route('transactions.print', $transaction->invoice);
+        // Return JSON response with invoice number
+        return response()->json(['success' => true, 'invoice' => $transaction->invoice]);
     }
 
     /**
