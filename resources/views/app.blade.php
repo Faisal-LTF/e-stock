@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="icon" href="/icon/inventory.png" type="image/png">
+    <link rel="icon" href="/icon/aaa.png" type="image/png">
     <title inertia>{{ config('app.name', 'AMA') }}</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
