@@ -16,9 +16,9 @@ export default function Sidebar({ sidebarOpen }) {
                     <div className="flex justify-center items-center px-6 py-2 h-16">
                         {/* Replace AMA text with logo */}
                         <img
-                            src="/img/ama.png" // Update with the correct path to your logo
+                            src="/img/amma.png" // Update with the correct path to your logo
                             alt="Logo"
-                            className="h-7 w-auto" // Adjust size as needed
+                            className="h-10 w-auto" // Adjust size as needed
                         />
                     </div>
                     <div className="w-full p-3 flex items-center gap-4 border-b border-t dark:bg-gray-950/50 dark:border-gray-900">

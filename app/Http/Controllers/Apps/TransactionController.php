@@ -269,7 +269,7 @@ class TransactionController extends Controller
             ->firstOrFail();
 
         $store = [
-            'name' => 'AMA',
+            'name' => 'ATTAVAL MENARA ABADI',
             'address' => ' jl.trantang kelurahan bitahan kecamatan lokpaika',
             'phone' => '083141835652',
         ];
@@ -298,7 +298,8 @@ class TransactionController extends Controller
             $query->where('cashier_id', auth()->id());
         }
 
-        $transactions = $query->latest()->get();
+        // Get transactions with pagination
+        $transactions = $query->latest()->paginate(7); // Changed from get() to paginate(7)
 
         return Inertia::render('Dashboard/Transactions-history/Index', [
             'transactions' => $transactions

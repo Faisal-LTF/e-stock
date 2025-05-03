@@ -19,10 +19,24 @@ export default function Print({ transaction, store }) {
             <Head title="Print Invoice" />
             {/* Memperlebar ukuran maksimal container */}
             <div className="max-w-3xl mx-auto p-4 bg-white dark:bg-black text-black dark:text-white text-sm">
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold text-green-500">{store?.name || 'Toko'}</h1>
-                    <p className="text-">{store?.address || 'Alamat Toko'}</p>
-                    <p>{store?.phone || 'Nomor Telepon'}</p>
+                <div className="mb-5 flex items-center">
+
+                    {/* Konten tengah */}
+                    <div className="flex-1 text-left">
+                        {/* <h1 className="text-2xl font-bold text-blue-300">{store?.name || 'Toko'}</h1> */}
+                        <h1 className="text-2xl font-bold" style={{ color: '#00877b' }}>{store?.name || 'Toko'}</h1>
+                        <p >{store?.address || 'Alamat Toko'}</p>
+                        <p>{store?.phone || 'Nomor Telepon'}</p>
+                    </div>
+                    {/* Logo di pojok kiri */}
+                    <div className="flex-shrink-0">
+                        <img
+                            src="/img/amaa.png" // Path logo kiri
+                            alt="Left Logo"
+                            className="h-20 w-auto" // Sesuaikan ukuran
+                            style={{ opacity: 0.5 }} // Atur opasitas
+                        />
+                    </div>
                 </div>
 
                 <div className="flex justify-between mb-6">
@@ -56,9 +70,9 @@ export default function Print({ transaction, store }) {
                     <thead className="border-t border-black dark:border-white">
                         <tr>
                             <th className="py-2 w-12">No</th>
-                            <th className="py-2">Product</th>
-                            <th className="py-2">Price</th>
-                            <th className="py-2 w-16">Qty</th>
+                            <th className="py-2">Produk</th>
+                            <th className="py-2">Harga</th>
+                            <th className="py-2 w-16">Jumlah</th>
                             <th className="py-2 text-right">Subtotal</th>
                         </tr>
                     </thead>
