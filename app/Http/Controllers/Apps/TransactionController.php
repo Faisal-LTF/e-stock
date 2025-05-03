@@ -171,41 +171,13 @@ class TransactionController extends Controller
         $taxable_amount = $carts_total - $discount_value;
         $tax_value = ($request->tax_percentage / 100) * $taxable_amount;
 
-        // // Validasi tax_amount dan grand_total
-        // if (abs($tax_value - $request->tax_amount) > 0.01) {
-        //     \Log::error('Tax Amount Mismatch', [
-        //         'calculated' => $tax_value,
-        //         'received' => $request->tax_amount,
-        //     ]);
-        //     return back()->withErrors(['tax_amount' => 'Tax amount does not match calculated tax.']);
-        // }
-
-        // $expected_grand_total = $taxable_amount + $tax_value;
-        // if (abs($expected_grand_total - $request->grand_total) > 0.01) {
-        //     \Log::error('Grand Total Mismatch', [
-        //         'calculated' => $expected_grand_total,
-        //         'received' => $request->grand_total,
-        //     ]);
-        //     return back()->withErrors(['grand_total' => 'Grand total does not match calculated total.']);
-        // }
-
-        // Validasi change
-        // $expected_change = $request->cash - $expected_grand_total;
-        // if (abs($expected_change - $request->change) > 0.01) {
-        //     \Log::error('Change Mismatch', [
-        //         'calculated' => $expected_change,
-        //         'received' => $request->change,
-        //     ]);
-        //     return back()->withErrors(['change' => 'Change does not match calculated change.']);
-        // }
-
         // Generate nomor invoice
         $length = 10;
         $random = '';
         for ($i = 0; $i < $length; $i++) {
             $random .= rand(0, 1) ? rand(0, 9) : chr(rand(ord('a'), ord('z')));
         }
-        $invoice = 'TRX-' . Str::upper($random);
+        $invoice = 'AMA-' . Str::upper($random);
 
         // Insert transaksi
         $transaction = Transaction::create([

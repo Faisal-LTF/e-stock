@@ -19,39 +19,60 @@ export default function Print({ transaction, store }) {
             <Head title="Print Invoice" />
             {/* Memperlebar ukuran maksimal container */}
             <div className="max-w-3xl mx-auto p-4 bg-white dark:bg-black text-black dark:text-white text-sm">
-                <div className="text-center mb-8">
-                    <h1 className="text-2xl font-bold">{store?.name || 'Toko'}</h1>
-                    <p>{store?.address || 'Alamat Toko'}</p>
-                    <p>{store?.phone || 'Nomor Telepon'}</p>
+                <div className="mb-5 flex items-center">
+
+                    {/* Konten tengah */}
+                    <div className="flex-1 text-left">
+                        {/* <h1 className="text-2xl font-bold text-blue-300">{store?.name || 'Toko'}</h1> */}
+                        <h1 className="text-2xl font-bold" style={{ color: '#00877b' }}>{store?.name || 'Toko'}</h1>
+                        <p >{store?.address || 'Alamat Toko'}</p>
+                        <p>{store?.phone || 'Nomor Telepon'}</p>
+                    </div>
+                    {/* Logo di pojok kiri */}
+                    <div className="flex-shrink-0">
+                        <img
+                            src="/img/amaa.png" // Path logo kiri
+                            alt="Left Logo"
+                            className="h-20 w-auto" // Sesuaikan ukuran
+                            style={{ opacity: 0.5 }} // Atur opasitas
+                        />
+                    </div>
                 </div>
 
                 <div className="flex justify-between mb-6">
+                    <div className="text-left">
+                        <h2 className="text-lg font-semibold mb-2">Pelanggan</h2>
+                        <div className="flex justify-end">
+                            <div className="inline-block text-right font-medium" style={{ width: '5rem', textAlign: 'left' }}>
+                                <div>Nama</div>
+                                <div>Alamat</div>
+                                <div>Telepon</div>
+                            </div>
+                            <div className="inline-block mx-2">
+                                <div>:</div>
+                                <div>:</div>
+                                <div>:</div>
+                            </div>
+                            <div className="inline-block text-left">
+                                <div>{transaction.customer?.name || 'Umum'}</div>
+                                <div>{transaction.customer?.address || '-'}</div>
+                                <div>{transaction.customer?.no_telp || '-'}</div>
+                            </div>
+                        </div>
+                    </div>
                     <div>
                         <h2 className="text-lg font-semibold">Invoice</h2>
                         <p>No: {transaction.invoice}</p>
-                        <p>Date: {new Date(transaction.created_at).toLocaleDateString()}</p>
-                    </div>
-                    <div className="text-right">
-                        <h2 className="text-lg font-semibold mb-2">Pelanggan</h2>
-                        <div className="grid grid-cols-[auto,auto] gap-x-3 text-right">
-                            <span className="font-medium text-right">Nama</span>
-                            <span>: {transaction.customer?.name || 'Umum'}</span>
-
-                            <span className="font-medium text-right">Alamat</span>
-                            <span>: {transaction.customer?.address || '-'}</span>
-
-                            <span className="font-medium text-right">Telepon</span>
-                            <span>: {transaction.customer?.no_telp || '-'}</span>
-                        </div>
+                        <p>Tanggal: {new Date(transaction.created_at).toLocaleDateString()}</p>
                     </div>
                 </div>
                 <table className="w-full text-left">
                     <thead className="border-t border-black dark:border-white">
                         <tr>
                             <th className="py-2 w-12">No</th>
-                            <th className="py-2">Product</th>
-                            <th className="py-2">Price</th>
-                            <th className="py-2 w-16">Qty</th>
+                            <th className="py-2">Produk</th>
+                            <th className="py-2">Harga</th>
+                            <th className="py-2 w-16">Jumlah</th>
                             <th className="py-2 text-right">Subtotal</th>
                         </tr>
                     </thead>
@@ -67,7 +88,7 @@ export default function Print({ transaction, store }) {
                         ))}
 
                         {/* Tambah baris kosong jika kurang dari 3 */}
-                        {Array.from({ length: 3 - transaction.details.length }, (_, i) => (
+                        {Array.from({ length: 2 - transaction.details.length }, (_, i) => (
                             <tr key={`empty-${i}`}>
                                 <td className="py-4">&nbsp;</td>
                                 <td className="py-4">&nbsp;</td>
@@ -89,6 +110,22 @@ export default function Print({ transaction, store }) {
                                 <li>Barang yang sudah dibeli tidak bisa ditukar ataupun dikembalikan</li>
                                 <li>Garansi hilang apabila disebabkan faktor external</li>
                             </ol>
+
+                            {/* Area Tanda Tangan di bawah keterangan */}
+                            <div className="mt-6">
+                                <div className="flex">
+                                    <div className="text-center w-1/2">
+                                        <p className="text-xs">Hormat kami,</p>
+                                        <div className="h-12"></div>
+                                        <p className="text-xs font-mono">( .................. )</p>
+                                    </div>
+                                    <div className="text-center w-1/2">
+                                        <p className="text-xs">Penerima,</p>
+                                        <div className="h-12"></div>
+                                        <p className="text-xs font-mono">( .................. )</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -113,7 +150,7 @@ export default function Print({ transaction, store }) {
                                 <span>Pajak ({Number(transaction.tax_percentage).toFixed(2)}%)</span>
                                 <span>{formatPrice(transaction.tax_amount)}</span>
                             </div>
-                            <div className="flex justify-between py-1 font-semibold border-t border-black dark:border-white pt-2">
+                            <div className="flex justify-between py-1 font-bold border-t border-black dark:border-white pt-2">
                                 <span>Grand Total</span>
                                 <span>{formatPrice(transaction.grand_total)}</span>
                             </div>
