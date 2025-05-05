@@ -19,15 +19,7 @@ export default function Button({ className, icon, label, type, href, added, url,
             cancelButtonText: 'Tidak'
         }).then((result) => {
             if (result.isConfirmed) {
-                destroy(url)
-
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Data berhasil dihapus!',
-                    icon: 'success',
-                    showConfirmButton: false,
-                    timer: 1500
-                })
+                destroy(url);
             }
         })
     }

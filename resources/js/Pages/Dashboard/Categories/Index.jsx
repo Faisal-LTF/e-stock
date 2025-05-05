@@ -6,6 +6,7 @@ import { IconCirclePlus, IconDatabaseOff, IconPencilCog, IconTrash } from '@tabl
 import Search from '@/Components/Dashboard/Search'
 import Table from '@/Components/Dashboard/Table'
 import Pagination from '@/Components/Dashboard/Pagination'
+import FlashMessage from '@/Components/Dashboard/FlashMessage';
 
 export default function Index({ categories }) {
     const { roles, permissions, errors, } = usePage().props;
@@ -13,6 +14,7 @@ export default function Index({ categories }) {
     return (
         <>
             <Head title='Kategori' />
+            <FlashMessage />
             <div className='mb-2'>
                 <div className='flex justify-between items-center gap-2'>
                     <Button

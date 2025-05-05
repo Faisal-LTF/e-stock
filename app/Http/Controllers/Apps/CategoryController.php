@@ -136,16 +136,19 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        //find by ID
-        $category = Category::findOrFail($id);
+        try {
+            $category = Category::findOrFail($id);
 
-        //remove image
-        Storage::disk('local')->delete('public/category/' . basename($category->image));
+            if ($category->products()->count() > 0) {
+                return redirect()->back()->with('error', 'Kategori tidak dapat dihapus karena masih digunakan oleh produk.');
+            }
 
-        //delete
-        $category->delete();
+            Storage::disk('local')->delete('public/category/' . basename($category->image));
+            $category->delete();
 
-        //redirect
-        return to_route('categories.index');
+            return redirect()->route('categories.index')->with('success', 'Kategori berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 }
