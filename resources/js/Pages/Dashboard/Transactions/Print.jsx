@@ -18,8 +18,8 @@ export default function Print({ transaction, store }) {
         <>
             <Head title="Print Invoice" />
             {/* Memperlebar ukuran maksimal container */}
-            <div className="max-w-3xl mx-auto p-4 bg-white dark:bg-black text-black dark:text-white text-sm">
-                <div className="mb-5 flex items-center">
+            <div className="max-w-4xl mx-auto p-4 bg-white dark:bg-black text-black dark:text-white text-sm">
+                <div className="flex items-center">
 
                     {/* Konten tengah */}
                     <div className="flex-1 text-left">
@@ -39,9 +39,9 @@ export default function Print({ transaction, store }) {
                     </div>
                 </div>
 
-                <div className="flex justify-between mb-6">
+                <div className="flex justify-between mb-2">
                     <div className="text-left">
-                        <h2 className="text-lg font-semibold mb-2">Pelanggan</h2>
+                        <h2 className="text-lg font-semibold">Pelanggan</h2>
                         <div className="flex justify-end">
                             <div className="inline-block text-right font-medium" style={{ width: '5rem', textAlign: 'left' }}>
                                 <div>Nama</div>
@@ -55,8 +55,8 @@ export default function Print({ transaction, store }) {
                             </div>
                             <div className="inline-block text-left">
                                 <div>{transaction.customer?.name || 'Umum'}</div>
-                                <div>{transaction.customer?.address || '-'}</div>
                                 <div>{transaction.customer?.no_telp || '-'}</div>
+                                <div>{transaction.customer?.address || '-'}</div>
                             </div>
                         </div>
                     </div>
@@ -67,23 +67,23 @@ export default function Print({ transaction, store }) {
                     </div>
                 </div>
                 <table className="w-full text-left">
-                    <thead className="border-t border-black dark:border-white">
+                    <thead className="border-t border-b border-black dark:border-white">
                         <tr>
-                            <th className="py-2 w-12">No</th>
-                            <th className="py-2">Produk</th>
-                            <th className="py-2">Harga</th>
-                            <th className="py-2 w-16">Jumlah</th>
-                            <th className="py-2 text-right">Subtotal</th>
+                            <th className=" w-12">No</th>
+                            <th className="">Produk</th>
+                            <th className="">Harga</th>
+                            <th className=" w-16">Jumlah</th>
+                            <th className=" text-right">Subtotal</th>
                         </tr>
                     </thead>
                     <tbody className="border-b border-black dark:border-white">
                         {transaction.details.map((item, index) => (
                             <tr key={index}>
-                                <td className="py-2">{index + 1}</td>
-                                <td className="py-2">{item.product.title}</td>
-                                <td className="py-2">{formatPrice(item.price)}</td>
-                                <td className="py-2">{item.qty}</td>
-                                <td className="py-2 text-right">{formatPrice(item.price * item.qty)}</td>
+                                <td className="">{index + 1}</td>
+                                <td className="">{item.product.title}</td>
+                                <td className="">{formatPrice(item.price)}</td>
+                                <td className="">{item.qty}</td>
+                                <td className=" text-right">{formatPrice(item.price * item.qty)}</td>
                             </tr>
                         ))}
 
@@ -101,10 +101,10 @@ export default function Print({ transaction, store }) {
                 </table>
 
                 {/* Layout dengan dua kolom untuk informasi dan ringkasan */}
-                <div className="mt-8 flex flex-wrap">
+                <div className="mt-2 flex flex-wrap">
                     {/* Kolom kiri: Keterangan/Syarat */}
                     <div className="w-full md:w-1/2 pr-4">
-                        <div className="border-t border-black dark:border-white pt-2">
+                        <div className=" pt-2">
                             <h3 className="font-semibold mb-2">Keterangan:</h3>
                             <ol className="list-decimal pl-5 text-xs space-y-1">
                                 <li>Barang yang sudah dibeli tidak bisa ditukar ataupun dikembalikan</li>
@@ -112,7 +112,7 @@ export default function Print({ transaction, store }) {
                             </ol>
 
                             {/* Area Tanda Tangan di bawah keterangan */}
-                            <div className="mt-6">
+                            <div className="mt-2">
                                 <div className="flex">
                                     <div className="text-center w-1/2">
                                         <p className="text-xs">Hormat kami,</p>
@@ -131,7 +131,7 @@ export default function Print({ transaction, store }) {
 
                     {/* Kolom kanan: Ringkasan Transaksi */}
                     <div className="w-full md:w-1/2 mt-4 md:mt-0">
-                        <div className="border-t border-black dark:border-white pt-2">
+                        <div className=" pt-2">
                             <div className="flex justify-between py-1">
                                 <span>Subtotal</span>
                                 <span>{formatPrice(totalSubtotal)}</span>
@@ -164,12 +164,6 @@ export default function Print({ transaction, store }) {
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div className="text-center mt-8">
-                    <p className="text-sm">Thank you for your purchase!</p>
-                    <p className="text-sm">Please come again.</p>
-                    <p className="text-xs mt-2">Kasir: {transaction.cashier?.name || '-'}</p>
                 </div>
             </div>
         </>

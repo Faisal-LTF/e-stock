@@ -39,6 +39,7 @@ export default function Index({ products }) {
                             <Table.Th >Kode</Table.Th>
                             <Table.Th >Kategori</Table.Th>
                             <Table.Th>Nama</Table.Th>
+                            <Table.Th>Deskripsi</Table.Th>
                             <Table.Th>Harga Beli</Table.Th>
                             <Table.Th>Harga Jual</Table.Th>
                             <Table.Th>Stok</Table.Th>
@@ -62,6 +63,7 @@ export default function Index({ products }) {
                                         />
                                     </Table.Td>
                                     <Table.Td>{product.category.name}</Table.Td>
+                                    <Table.Td>{product.title}</Table.Td>
                                     <Table.Td>{product.description}</Table.Td>
                                     <Table.Td>{product.buy_price}</Table.Td>
                                     <Table.Td>{product.sell_price}</Table.Td>
