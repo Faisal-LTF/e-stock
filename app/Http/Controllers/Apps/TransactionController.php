@@ -240,8 +240,9 @@ class TransactionController extends Controller
 
         $store = [
             'name' => 'ATTAVAL MENARA ABADI',
-            'address' => ' jl.trantang kelurahan bitahan kecamatan lokpaika',
+            'address' => ' Jl. Terantang kelurahan bitahan kecamatan lokpaikat',
             'phone' => '083141835652',
+            'rec' => 'Mandiri | 0310021455012 | Salabiah',
         ];
 
         return Inertia::render('Dashboard/Transactions/Print', [
