@@ -147,6 +147,7 @@ class TransactionController extends Controller
             'grand_total' => 'required|numeric',
             'cash' => 'required|numeric',
             'change' => 'required|numeric',
+            'transaction_date' => 'required|date', // Add validation for transaction date
         ]);
 
         // Hitung total belanja dari keranjang
@@ -176,7 +177,7 @@ class TransactionController extends Controller
         }
         $invoice = 'AMA-' . Str::upper($random);
 
-        // Insert transaksi
+        // Insert transaksi dengan tanggal yang diberikan
         $transaction = Transaction::create([
             'cashier_id' => auth()->user()->id,
             'customer_id' => $request->customer_id,
@@ -189,6 +190,7 @@ class TransactionController extends Controller
             'tax_percentage' => $request->tax_percentage,
             'tax_amount' => $tax_value,
             'grand_total' => $request->grand_total,
+            'created_at' => $request->transaction_date, // Set created_at to the provided date
         ]);
 
         // Insert detail transaksi
@@ -199,6 +201,7 @@ class TransactionController extends Controller
                 'product_id' => $cart->product_id,
                 'qty' => $cart->qty,
                 'price' => $cart->price,
+                'created_at' => $request->transaction_date, // Set created_at for details
             ]);
 
             // Hitung keuntungan
@@ -210,6 +213,7 @@ class TransactionController extends Controller
             $transaction->profits()->create([
                 'transaction_id' => $transaction->id,
                 'total' => $profits,
+                'created_at' => $request->transaction_date, // Set created_at for profits
             ]);
 
             // Update stok produk

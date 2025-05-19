@@ -28,6 +28,7 @@ class Transaction extends Model
         'tax_percentage',
         'tax_amount',
         'grand_total',
+        'created_at', // Add created_at to fillable
     ];
 
     /**

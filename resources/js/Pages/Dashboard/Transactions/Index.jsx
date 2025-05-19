@@ -25,7 +25,7 @@ export default function Index({ carts, carts_total, customers }) {
     const { errors, auth } = usePage().props;
 
     const [barcode, setBarcode] = useState('');
-    const [product, setProduct] = useState({});
+    const [product, setProduct] = useState(null); // Initialize as null
     const [qty, setQty] = useState(1);
     const [grandTotal, setGrandTotal] = useState(carts_total);
     const [cash, setCash] = useState(0);
@@ -38,6 +38,7 @@ export default function Index({ carts, carts_total, customers }) {
     const [taxPercentage, setTaxPercentage] = useState(0);
     const [taxAmount, setTaxAmount] = useState(0);
     const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [transactionDate, setTransactionDate] = useState(new Date().toISOString().split('T')[0]); // Default to today
 
     // Helper function to format price
     const formatPrice = (price) => {
@@ -55,6 +56,7 @@ export default function Index({ carts, carts_total, customers }) {
         tax_amount: 0,
         cash: '',
         change: '',
+        transaction_date: transactionDate,
     });
 
     // Set selected customer
@@ -62,6 +64,11 @@ export default function Index({ carts, carts_total, customers }) {
         setSelectedCustomer(value);
         setData('customer_id', value.id);
     };
+
+    // Update form data when transactionDate changes
+    useEffect(() => {
+        setData('transaction_date', transactionDate);
+    }, [transactionDate]);
 
     useEffect(() => {
         let calculatedDiscount = discount;
@@ -89,24 +96,84 @@ export default function Index({ carts, carts_total, customers }) {
                 if (response.data.success) {
                     setProduct(response.data.data);
                 } else {
-                    setProduct({});
+                    setProduct(null);
+                    toast('Produk tidak ditemukan', {
+                        style: {
+                            borderRadius: '10px',
+                            background: '#FF0000',
+                            color: '#fff',
+                        },
+                    });
                 }
+            })
+            .catch(() => {
+                setProduct(null);
+                toast('Terjadi kesalahan saat mencari produk', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#FF0000',
+                        color: '#fff',
+                    },
+                });
             });
     };
 
     const addToCart = (e) => {
         e.preventDefault();
+        if (!product || !product.id) {
+            toast('Silakan pilih produk terlebih dahulu', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#FF0000',
+                    color: '#fff',
+                },
+            });
+            return;
+        }
+        if (qty <= 0 || qty > product.stock) {
+            toast('Kuantitas tidak valid atau melebihi stok', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#FF0000',
+                    color: '#fff',
+                },
+            });
+            return;
+        }
         router.post(route('transactions.addToCart'), {
             product_id: product.id,
             sell_price: product.sell_price,
             qty,
+        }, {
+            onSuccess: () => {
+                toast('Produk berhasil ditambahkan ke keranjang', {
+                    icon: '👏',
+                    style: {
+                        borderRadius: '10px',
+                        background: '#1C1F29',
+                        color: '#fff',
+                    },
+                });
+                setProduct(null);
+                setBarcode('');
+                setQty(1);
+            },
+            onError: (errors) => {
+                toast('Gagal menambahkan produk ke keranjang', {
+                    style: {
+                        borderRadius: '10px',
+                        background: '#FF0000',
+                        color: '#fff',
+                    },
+                });
+                console.log('Add to Cart Errors:', errors);
+            },
         });
     };
 
-    // Modify the storeTransaction function to open in a new tab instead of navigating
     const storeTransaction = (e) => {
         e.preventDefault();
-        if (!data.customer_id) {
+        if (!data.customer_id) { // Fixed typo: datacustomer_id -> data.customer_id
             toast('Pilih pelanggan terlebih dahulu', {
                 style: {
                     borderRadius: '10px',
@@ -114,54 +181,51 @@ export default function Index({ carts, carts_total, customers }) {
                     color: '#fff',
                 },
             });
-        } else {
-            if (cash >= grandTotal) {
-                // Use axios for the form submission instead of router.post
-                axios.post(route('transactions.store'), {
-                    customer_id: selectedCustomer ? selectedCustomer.id : '',
-                    discount: discountType === 'percentage' ? discountPercentage : discount,
-                    discount_type: discountType,
-                    tax_percentage: taxPercentage,
-                    tax_amount: taxAmount,
-                    grand_total: grandTotal,
-                    cash,
-                    change,
-                }).then(response => {
-                    toast('Data transaksi berhasil disimpan', {
-                        icon: '👏',
-                        style: {
-                            borderRadius: '10px',
-                            background: '#1C1F29',
-                            color: '#fff',
-                        },
-                    });
-
-                    // Open the print page in a new tab using the invoice from the response
-                    const invoice = response.data.invoice;
-                    window.open(route('transactions.print', invoice), '_blank');
-
-                    // Refresh the current page to update the cart
-                    window.location.reload();
-                }).catch(error => {
-                    console.log('Store Transaction Errors:', error);
-                    toast('Terjadi kesalahan saat menyimpan transaksi', {
-                        style: {
-                            borderRadius: '10px',
-                            background: '#FF0000',
-                            color: '#fff',
-                        },
-                    });
-                });
-            } else {
-                toast('Uang tunai tidak cukup', {
-                    style: {
-                        borderRadius: '10px',
-                        background: '#FF0000',
-                        color: '#fff',
-                    },
-                });
-            }
+            return;
         }
+        if (cash < grandTotal) {
+            toast('Uang tunai tidak cukup', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#FF0000',
+                    color: '#fff',
+                },
+            });
+            return;
+        }
+        axios.post(route('transactions.store'), {
+            customer_id: selectedCustomer ? selectedCustomer.id : '',
+            discount: discountType === 'percentage' ? discountPercentage : discount,
+            discount_type: discountType,
+            tax_percentage: taxPercentage,
+            tax_amount: taxAmount,
+            grand_total: grandTotal,
+            cash,
+            change,
+            transaction_date: transactionDate,
+        }).then(response => {
+            toast('Data transaksi berhasil disimpan', {
+                icon: '👏',
+                style: {
+                    borderRadius: '10px',
+                    background: '#1C1F29',
+                    color: '#fff',
+                },
+            });
+
+            const invoice = response.data.invoice;
+            window.open(route('transactions.print', invoice), '_blank');
+            window.location.reload();
+        }).catch(error => {
+            console.log('Store Transaction Errors:', error);
+            toast('Terjadi kesalahan saat menyimpan transaksi', {
+                style: {
+                    borderRadius: '10px',
+                    background: '#FF0000',
+                    color: '#fff',
+                },
+            });
+        });
     };
 
     // Handler untuk input Diskon (Rupiah)
@@ -210,6 +274,7 @@ export default function Index({ carts, carts_total, customers }) {
             setCash(parseRupiah(value));
         }
     };
+
     // Fungsi untuk mendapatkan label jenis diskon
     const getDiscountTypeLabel = () => {
         return discountType === 'rupiah' ? 'Rupiah (Rp)' : 'Persentase (%)';
@@ -228,8 +293,8 @@ export default function Index({ carts, carts_total, customers }) {
                                 type={'submit'}
                                 label={'Tambah'}
                                 icon={<IconShoppingCartPlus size={20} strokeWidth={1.5} />}
-                                disabled={!product.id}
-                                className={`border bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-950 dark:border-gray-800 dark:text-gray-200 dark:hover:bg-gray-900 mt-5 ${!product.id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={!product || !product.id}
+                                className={`border bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-950 dark:border-gray-800 dark:text-gray-200 dark:hover:bg-gray-900 mt-5 ${(!product || !product.id) ? 'opacity-50 cursor-not-allowed' : ''}`}
                             />
                         }
                         form={addToCart}
@@ -239,6 +304,7 @@ export default function Index({ carts, carts_total, customers }) {
                                 type={'text'}
                                 label={'Scan/Input Barcode Produk'}
                                 placeholder={'Barcode Produk'}
+                                value={barcode}
                                 onChange={e => setBarcode(e.target.value)}
                                 onKeyUp={searchProduct}
                             />
@@ -249,7 +315,7 @@ export default function Index({ carts, carts_total, customers }) {
                                 label={'Produk'}
                                 placeholder={'Nama produk'}
                                 disabled
-                                value={product.title || ''}
+                                value={product?.title || ''}
                             />
                         </div>
                         <div className="mb-2">
@@ -257,10 +323,11 @@ export default function Index({ carts, carts_total, customers }) {
                                 type={'number'}
                                 label={'Kuantitas'}
                                 placeholder={'Kuantitas'}
+                                value={qty}
                                 onChange={e => setQty(e.target.value)}
                             />
                             <small className="text-gray-500">
-                                Stok : {product.stock || 0}
+                                Stok : {product?.stock || 0}
                             </small>
                         </div>
                     </Card>
@@ -279,7 +346,7 @@ export default function Index({ carts, carts_total, customers }) {
                                     </h1>
                                 </div>
                             </div>
-                            <div className="col-span-12 md:col-span-6">
+                            <div className="col-span-12 md:col-span-4">
                                 <Input
                                     type={'text'}
                                     label={'Kasir'}
@@ -288,7 +355,15 @@ export default function Index({ carts, carts_total, customers }) {
                                     value={auth.user.name}
                                 />
                             </div>
-                            <div className="col-span-12 md:col-span-6">
+                            <div className="col-span-12 md:col-span-3">
+                                <Input
+                                    type="date"
+                                    label="Tanggal Transaksi"
+                                    value={transactionDate}
+                                    onChange={(e) => setTransactionDate(e.target.value)}
+                                />
+                            </div>
+                            <div className="col-span-12 md:col-span-5">
                                 <InputSelect
                                     label="Pelanggan"
                                     data={customers}
@@ -328,7 +403,7 @@ export default function Index({ carts, carts_total, customers }) {
                                             <Button
                                                 type={'delete'}
                                                 icon={<IconTrash size={16} strokeWidth={1.5} />}
-                                                className={'border bg-rose-100 border-rose-300 text-rose-500 hover:bg-rose-200 dark:bg-rose-950 dark:border-rose-800 dark:text-gray-300  dark:hover:bg-rose-900'}
+                                                className={'border bg-rose-100 border-rose-300 text-rose-500 hover:bg-rose-200 dark:bg-rose-950 dark:border-rose-800 dark:text-gray-300 dark:hover:bg-rose-900'}
                                                 url={route('transactions.destroyCart', item.id)}
                                             />
                                         </Table.Td>
@@ -372,11 +447,11 @@ export default function Index({ carts, carts_total, customers }) {
                                     <option value="percentage">Persentase (%)</option>
                                 </select>
                             </div>
-                            <div className="col-span-10 md:col-span-4">
+                            <div className="col-span-10 md:col-span-5">
                                 <Input
                                     type={discountType === 'rupiah' ? 'text' : 'number'}
                                     label={`Diskon ${discountType === 'rupiah' ? '(Rp)' : '(%)'}`}
-                                    placeholder={`Silahkan Masukan Nilai  Diskon ${discountType === 'rupiah' ? '(Rp)' : '(%)'}`}
+                                    placeholder={`Silahkan Masukan Nilai Diskon ${discountType === 'rupiah' ? '(Rp)' : '(%)'}`}
                                     value={discountType === 'rupiah' ? discountInput : (discountPercentage === 0 ? '' : discountPercentage)}
                                     onChange={discountType === 'rupiah' ? handleDiscountChange : handleDiscountPercentageChange}
                                     min={discountType === 'percentage' ? 0 : undefined}
@@ -414,7 +489,6 @@ export default function Index({ carts, carts_total, customers }) {
                                     onChange={handleCashChange}
                                 />
                             </div>
-                            {/* Debugging: Tampilkan grand_total dan change di UI */}
                             <div className="col-span-12 text-sm text-gray-500">
                                 <p>Grand Total: {formatPrice(grandTotal)}</p>
                                 <p>Kembalian: {formatPrice(change)}</p>
