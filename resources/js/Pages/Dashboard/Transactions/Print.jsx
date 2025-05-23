@@ -72,7 +72,8 @@ export default function Print({ transaction, store }) {
                             <th className=" w-12">No</th>
                             <th className="">Produk</th>
                             <th className="">Harga</th>
-                            <th className=" w-16">Jumlah</th>
+                            <th className="text-center w-16">Jumlah</th>
+                            <th className=" text-center w-16">Satuan</th>
                             <th className=" text-right">Subtotal</th>
                         </tr>
                     </thead>
@@ -82,7 +83,8 @@ export default function Print({ transaction, store }) {
                                 <td className="">{index + 1}</td>
                                 <td className="">{item.product.title}</td>
                                 <td className="">{formatPrice(item.price)}</td>
-                                <td className="">{item.qty}</td>
+                                <td className="text-center">{item.qty}</td>
+                                <td className="text-center">{item.product.unit || '-'}</td>
                                 <td className=" text-right">{formatPrice(item.price * item.qty)}</td>
                             </tr>
                         ))}

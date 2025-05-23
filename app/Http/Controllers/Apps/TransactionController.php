@@ -238,7 +238,11 @@ class TransactionController extends Controller
     public function print($invoice)
     {
         //get transaction
-        $transaction = Transaction::with('details.product', 'cashier', 'customer')
+        $transaction = Transaction::with(['details' => function ($query) {
+            $query->with(['product' => function ($productQuery) {
+                $productQuery->select('id', 'title', 'sell_price', 'unit'); // Ensure 'unit' is selected
+            }]);
+        }, 'cashier', 'customer'])
             ->where('invoice', $invoice)
             ->firstOrFail();
 
