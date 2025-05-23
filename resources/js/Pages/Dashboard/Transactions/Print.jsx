@@ -126,23 +126,6 @@ export default function Print({ transaction, store }) {
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex-1 text-left mt-4">
-                                <div className="inline-block text-right font-medium" >
-                                    <div>Rekening</div>
-                                </div>
-                                <p >{store?.rec || 'Rekening Toko'}</p>
-                            </div>
-                            {/* <div className="flex justify-end">
-                                <div className="inline-block text-right font-medium" >
-                                    <div>Rekening</div>
-                                </div>
-                                <div className="inline-block mx-2">
-                                    <div>:</div>
-                                </div>
-                                <div className="inline-block text-left">
-                                    <div>{store?.rec || 'Rekening Toko'}</div>
-                                </div>
-                            </div> */}
                         </div>
                     </div>
 
@@ -180,6 +163,12 @@ export default function Print({ transaction, store }) {
                                 <span>{formatPrice(transaction.change)}</span>
                             </div>
                         </div>
+                    </div>
+                    <div className="flex-1 text-left mt-4">
+                        <div className="inline-block text-right font-medium" >
+                            <div>Rekening</div>
+                        </div>
+                        <p >{store?.rec || 'Rekening Toko'}</p>
                     </div>
                 </div>
             </div>

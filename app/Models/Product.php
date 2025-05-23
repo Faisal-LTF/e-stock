@@ -9,14 +9,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Product extends Model
 {
     use HasFactory;
-    
+
     /**
      * fillable
      *
      * @var array
      */
     protected $fillable = [
-        'image', 'barcode', 'title', 'description', 'buy_price', 'sell_price', 'category_id', 'stock'
+        'image',
+        'barcode',
+        'title',
+        'description',
+        'buy_price',
+        'sell_price',
+        'unit',
+        'category_id',
+        'stock'
     ];
 
     /**
@@ -37,7 +45,7 @@ class Product extends Model
     protected function image(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => asset('/storage/products/' . $value),
+            get: fn($value) => asset('/storage/products/' . $value),
         );
     }
 }

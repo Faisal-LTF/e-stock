@@ -21,6 +21,7 @@ export default function Create({ categories }) {
         description: '',
         buy_price: '',
         sell_price: '',
+        unit: '',
         stock: ''
     })
 
@@ -114,7 +115,7 @@ export default function Create({ categories }) {
                             placeholder={'Barcode'}
                         />
                     </div>
-                    <div className='col-span-6'>
+                    <div className='col-span-4'>
                         <Input
                             type={'text'}
                             label={'Nama'}
@@ -124,7 +125,7 @@ export default function Create({ categories }) {
                             placeholder={'Nama produk'}
                         />
                     </div>
-                    <div className='col-span-6'>
+                    <div className='col-span-4'>
                         <Input
                             type={'number'}
                             label={'Stok'}
@@ -132,6 +133,16 @@ export default function Create({ categories }) {
                             onChange={e => setData('stock', e.target.value)}
                             errors={errors.stock}
                             placeholder={'Stok tersedia'}
+                        />
+                    </div>
+                    <div className='col-span-4'>
+                        <Input
+                            type={'text'}
+                            label={'Satuan'}
+                            value={data.unit}
+                            onChange={e => setData('unit', e.target.value)}
+                            errors={errors.unit}
+                            placeholder={'Misal: Pcs, Kg, Box'}
                         />
                     </div>
                     <div className='col-span-12'>

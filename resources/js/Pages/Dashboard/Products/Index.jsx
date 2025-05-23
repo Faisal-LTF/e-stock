@@ -43,6 +43,7 @@ export default function Index({ products }) {
                             <Table.Th>Harga Beli</Table.Th>
                             <Table.Th>Harga Jual</Table.Th>
                             <Table.Th>Stok</Table.Th>
+                            <Table.Th>Satuan</Table.Th>
                             <Table.Th></Table.Th>
                         </tr>
                     </Table.Thead>
@@ -68,6 +69,7 @@ export default function Index({ products }) {
                                     <Table.Td>{product.buy_price}</Table.Td>
                                     <Table.Td>{product.sell_price}</Table.Td>
                                     <Table.Td>{product.stock}</Table.Td>
+                                    <Table.Td>{product.unit}</Table.Td>
                                     <Table.Td>
                                         <div className='flex gap-2'>
                                             <Button

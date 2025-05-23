@@ -21,6 +21,7 @@ export default function Edit({ categories, product }) {
         description: product.description,
         buy_price: product.buy_price,
         sell_price: product.sell_price,
+        unit: product.unit,
         stock: product.stock,
         _method: 'PUT'
     })
@@ -120,7 +121,7 @@ export default function Edit({ categories, product }) {
                             placeholder={'Barcode'}
                         />
                     </div>
-                    <div className='col-span-6'>
+                    <div className='col-span-4'>
                         <Input
                             type={'text'}
                             label={'Nama'}
@@ -130,7 +131,7 @@ export default function Edit({ categories, product }) {
                             placeholder={'Nama produk'}
                         />
                     </div>
-                    <div className='col-span-6'>
+                    <div className='col-span-4'>
                         <Input
                             type={'number'}
                             label={'Stok'}
@@ -138,6 +139,16 @@ export default function Edit({ categories, product }) {
                             onChange={e => setData('stock', e.target.value)}
                             errors={errors.stock}
                             placeholder={'Stok tersedia'}
+                        />
+                    </div>
+                    <div className='col-span-4'>
+                        <Input
+                            type={'text'}
+                            label={'Satuan'}
+                            value={data.unit}
+                            onChange={e => setData('unit', e.target.value)}
+                            errors={errors.unit}
+                            placeholder={'Misal: Pcs, Kg, Box'}
                         />
                     </div>
                     <div className='col-span-12'>

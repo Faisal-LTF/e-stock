@@ -63,6 +63,7 @@ class ProductController extends Controller
             'category_id' => 'required',
             'buy_price' => 'required',
             'sell_price' => 'required',
+            'unit' => 'required',
             'stock' => 'required',
         ]);
         //upload image
@@ -78,6 +79,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'buy_price' => $request->buy_price,
             'sell_price' => $request->sell_price,
+            'unit' => $request->unit,
             'stock' => $request->stock,
         ]);
 
@@ -121,6 +123,7 @@ class ProductController extends Controller
             'category_id' => 'required',
             'buy_price' => 'required',
             'sell_price' => 'required',
+            'unit' => 'required',
             'stock' => 'required',
         ]);
 
@@ -143,6 +146,7 @@ class ProductController extends Controller
                 'category_id' => $request->category_id,
                 'buy_price' => $request->buy_price,
                 'sell_price' => $request->sell_price,
+                'unit' => $request->unit,
                 'stock' => $request->stock,
             ]);
         }
@@ -155,6 +159,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'buy_price' => $request->buy_price,
             'sell_price' => $request->sell_price,
+            'unit' => $request->unit,
             'stock' => $request->stock,
         ]);
 
