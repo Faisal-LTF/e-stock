@@ -94,8 +94,8 @@ class TransactionController extends Controller
             // Tambah kuantitas
             $cart->qty += $request->qty;
 
-            //  Tetapkan ulang harga satuan jika perlu (opsional, atau bisa diabaikan kalau tidak berubah)
-            $cart->price = $cart->product->sell_price;
+            // Tetapkan ulang harga satuan jika perlu (opsional, atau bisa diabaikan kalau tidak berubah)
+            $cart->price = $cart->product->sell_price * 1.3;
 
             $cart->save();
         } else {
@@ -104,7 +104,7 @@ class TransactionController extends Controller
                 'cashier_id' => auth()->user()->id,
                 'product_id' => $request->product_id,
                 'qty' => $request->qty,
-                'price' => $request->sell_price, //  hanya harga satuan!
+                'price' => $request->sell_price * 1.3, //  hanya harga satuan!
             ]);
         }
 
